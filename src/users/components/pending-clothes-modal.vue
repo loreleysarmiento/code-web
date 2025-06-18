@@ -39,20 +39,25 @@ export default {
   <div class="modal-backdrop" @click.self="close">
     <div class="modal-content">
       <button class="close-btn" @click="close">×</button>
-      <div class="modal-title">Pendientes</div>
+      <div class="modal-title">Publicados</div>
       <div class="gallery">
-        <button class="arrow left" @click="prevPage" :disabled="page === 0">‹</button>
+        <button class="arrow left" @click="prevPage" :disabled="page === 0">
+          <img src="/public/FLECHAIZQUIERDA.png" />
+        </button>
         <div class="cards">
           <div class="card" v-for="item in pagedItems" :key="item.id">
-            <button class="editar-btn-card" @click="$emit('edit', item)">Editar</button>
-            <img :src="item.imagen" alt="Prenda pendiente" />
-            <div>Nombre: {{ item.nombre }}</div>
-            <div>Tipo: {{ item.tipo }}</div>
-            <div>Estado: Pendiente</div>
-            <div>Precio: S/. {{ item.precio }}</div>
+            <div class="img-wrapper">
+              <button class="editar-btn-card" @click="$emit('edit', item)">Editar</button>
+              <img :src="item.imagen" alt="Prenda pendiente" />
+            </div>
+            <div class="dato-card">Tipo: {{ item.tipo }}</div>
+            <div class="dato-card">Estado: Publicado</div>
+            <div class="dato-card">Precio: S/. {{ item.precio }}</div>
           </div>
         </div>
-        <button class="arrow right" @click="nextPage" :disabled="endIndex >= items.length">›</button>
+        <button class="arrow right" @click="nextPage" :disabled="endIndex >= items.length">
+          <img src="/public/FlechaContinuar.png" />
+        </button>
       </div>
     </div>
   </div>
@@ -68,91 +73,161 @@ export default {
   justify-content: center;
   z-index: 1000;
 }
+
 .modal-content {
   background: #fff;
-  border-radius: 20px;
-  padding: 30px 20px;
-  min-width: 700px;
-  min-height: 350px;
+  border-radius: 150px;
+  padding: 50px 40px;
+  min-width: 1300px;
+  min-height: 800px;
   position: relative;
   box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
+
 .close-btn {
   position: absolute;
-  top: 10px; right: 20px;
+  top: 30px;
+  right: 60px;
   background: none;
   border: none;
-  font-size: 2rem;
+  font-size: 3rem;
   cursor: pointer;
+  color: #000000;
+  z-index: 2;
+  transition: color 0.2s;
 }
+
+.close-btn:hover {
+  color: #e4738f;
+}
+
 .modal-title {
   text-align: center;
   font-size: 2rem;
   font-weight: bold;
-  color: #b46e7e;
+  color: #000;
   margin-bottom: 20px;
   letter-spacing: 1px;
 }
+
 .gallery {
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 600px; /* Centra verticalmente las flechas respecto a las cards */
 }
+
 .cards {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(2, 1fr);
-  gap: 15px;
-  margin: 0 20px;
+  gap: 40px;
+  margin: 0 40px;
 }
+
 .card {
-  background: #ffdde4;
-  border-radius: 15px;
-  padding: 10px;
+  padding: 30px 20px;
   text-align: center;
-  font-size: 0.9rem;
-  color: #7a3030;
+  font-size: 1.2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
+  min-width: 180px;
+  min-height: 260px;
+  box-shadow: 0 2px 8px rgba(180,110,126,0.07);
 }
+
 .card img {
-  width: 60px;
-  height: 60px;
+  width: 130px;
+  height: 130px;
   border-radius: 10px;
   object-fit: cover;
-  margin-bottom: 5px;
+  margin-bottom: 15px;
+  background: #fff;
 }
-.editar-btn-card {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  background: #ffd2dd;
-  border: none;
-  padding: 2px 10px;
-  border-radius: 10px;
-  cursor: pointer;
-  color: #b46e7e;
-  font-weight: 700;
+
+.card div {
   font-size: 0.8rem;
-  z-index: 2;
+  color: #000000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 5px;
+  padding-bottom: 5px;
+  padding-top: 5px;
 }
+
+.dato-card {
+  background: #f5b9cb;
+  border-radius: 15px;
+  padding: 4px 12px;
+  margin-bottom: 4px;
+  font-weight: 600;
+  font-size: 1rem;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .arrow {
-  background: #e4738f;
-  color: #fff;
+  background: none;
   border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  font-size: 1.5rem;
+  border-radius: 0;
+  width: 70px;
+  height: 70px;
+  padding: 0;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 .arrow:disabled {
-  background: #ccc;
   cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.arrow img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: filter 0.2s, transform 0.2s;
+}
+
+.arrow:hover img:not(:disabled) {
+  filter: brightness(1.2) drop-shadow(0 0 6px #e4738f);
+  transform: scale(1.08);
+}
+
+.editar-btn-card {
+  position: absolute;
+  top: 25px;
+  right: 10px;
+  background: #f5b9cb;
+  border: none;
+  padding: 5px 15px;
+  border-radius: 15px;
+  cursor: pointer;
+  color: #000000;
+  font-weight: 700;
+  font-size: 0.8rem;
+  z-index: 2;
+}
+
+.editar-btn-card:hover {
+  background: #e4738f;
+  color: #fff;
+  transition: background 0.2s, color 0.2s;
 }
 </style>
