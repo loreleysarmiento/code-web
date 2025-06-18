@@ -17,6 +17,7 @@ export class Profile {
      * @param {Array} [params.armario=[]] - Items in closet
      * @param {Array} [params.favoritos=[]] - Favorite items
      * @param {Array} [params.publicados=[]] - Published items
+     * @param {Array} [params.vendidos=[]] - Sold items
      */
     constructor({
                     id = '',
@@ -29,7 +30,8 @@ export class Profile {
                     imageprofile  = '',
                     armario = [],
                     favoritos = [],
-                    publicados = []
+                    publicados = [],
+                    vendidos = []
                 }) {
         this.id = id;
         this.nombre = nombre;
@@ -42,6 +44,7 @@ export class Profile {
         this.armario = armario;
         this.favoritos = favoritos;
         this.publicados = publicados;
+        this.vendidos = vendidos;
     }
 
     toJSON() {
@@ -56,7 +59,8 @@ export class Profile {
             imageprofile: this.imageprofile,
             armario: this.armario,
             favoritos: this.favoritos,
-            publicados: this.publicados
+            publicados: this.publicados,
+            vendidos: this.vendidos
         };
     }
 

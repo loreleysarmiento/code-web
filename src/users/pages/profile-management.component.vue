@@ -15,7 +15,7 @@
           >VENDEDOR</button>
         </div>
 
-        <!-- Sección COMPRADOR -->
+        <!-- SECCIÓN COMPRADOR -->
         <div v-if="activeProfile === 'comprador'" class="favoritos-section">
           <div class="tabs-fav-ti">
             <button :class="{ active: favTab === 'favoritos' }" @click="favTab='favoritos'">Favoritos</button>
@@ -55,18 +55,21 @@
           </Dialog>
         </div>
 
-        <!-- Sección VENDEDOR -->
+        <!-- SECCIÓN VENDEDOR -->
         <div v-if="activeProfile === 'vendedor'" class="vendedor-section">
-          <h3>Vendidas:</h3>
+          <!-- SECCIÓN VENDIDOS -->
+          <div class="section-title-custom">
+            <h3>Vendidos:</h3>
+          </div>
           <div class="vendidas-grid">
             <div class="vendida-card" v-for="item in vendidas.slice(0, 6)" :key="item.id">
               <img :src="item.imagen" alt="Prenda vendida" style="width:80px; border-radius:15px; margin-bottom:5px;" />
               <div>Tipo: {{ item.tipo }}</div>
-              <div>Estado: {{ item.estado || 'vendida' }}</div>
+              <div>Estado: Vendido</div>
               <div>Precio: {{ item.precio }}</div>
             </div>
           </div>
-          <a href="#" class="label-lista" @click.prevent="showSoldModal = true" style="cursor:pointer; text-decoration:underline;">
+          <a class="label-lista" @click.prevent="showSoldModal = true">
             Lista de prendas vendidas
           </a>
           <SoldClothesModal
@@ -75,18 +78,21 @@
               @close="showSoldModal = false"
           />
 
-          <h3>Pendientes:</h3>
+          <!-- SECCIÓN PUBLICADOS -->
+          <div class="section-title-custom">
+            <h3>Publicados:</h3>
+          </div>
           <div class="pendientes-grid">
             <div class="pendiente-card" v-for="item in pendientes.slice(0, 6)" :key="item.id">
               <img :src="item.imagen" alt="Prenda pendiente" style="width:80px; border-radius:15px; margin-bottom:5px;" />
               <div>Tipo: {{ item.tipo }}</div>
-              <div>Estado: {{ item.estado || 'pendiente' }}</div>
+              <div>Estado: Publicado</div>
               <div>Precio: {{ item.precio }}</div>
               <button class="editar-btn" @click="openEditClotheModal(item)">Editar</button>
             </div>
           </div>
-          <a href="#" class="label-lista" @click.prevent="showPendingModal = true" style="cursor:pointer; text-decoration:underline;">
-            Lista de prendas
+          <a class="label-lista" @click.prevent="showPendingModal = true">
+            Lista de prendas publicadas
           </a>
           <PendingClothesModal
               v-if="showPendingModal"
@@ -101,7 +107,55 @@
               @close="closeEditClotheModal"
               @save="onSaveClothe"
               @remove="onRemoveClothe"
+              @sell="openSellClotheModal"
           />
+          <SellClotheModal
+              v-if="sellModalVisible"
+              :visible="sellModalVisible"
+              :clothe="clotheToSell"
+              @close="closeSellClotheModal"
+              @confirm="onConfirmSell"
+          />
+
+          <!-- SECCIÓN ESTADÍSTICAS DE VENDEDOR -->
+          <div class="estadisticas-section">
+            <div class="section-title-custom">
+              <h3>Estadísticas de Ventas:</h3>
+            </div>
+            <div v-if="estadisticasVentas.total > 0" class="estadisticas-cards">
+              <div class="estadistica-card">
+                <div class="icono-card">🛒</div>
+                <div class="dato-card">{{ estadisticasVentas.total }}</div>
+                <div class="label-card">Vendidas</div>
+              </div>
+              <div class="estadistica-card">
+                <div class="icono-card">💰</div>
+                <div class="dato-card">S/. {{ estadisticasVentas.ingresos }}</div>
+                <div class="label-card">Ingresos</div>
+              </div>
+              <div class="estadistica-card">
+                <div class="icono-card">🏆</div>
+                <div class="dato-card">{{ estadisticasVentas.topCategoria }}</div>
+                <div class="label-card">Top Categoría</div>
+              </div>
+            </div>
+            <div v-if="estadisticasVentas.total > 0" class="estadisticas-categorias">
+              <span class="label-categorias">Ventas por categoría:</span>
+              <div class="categorias-badges">
+                <span
+                    v-for="(cantidad, categoria) in estadisticasVentas.porCategoria"
+                    :key="categoria"
+                    class="badge-categoria"
+                >
+                  {{ categoria }}: <b>{{ cantidad }}</b>
+                </span>
+              </div>
+            </div>
+            <div v-else class="estadisticas-empty">
+              <span>Sin ventas registradas aún.</span>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -129,6 +183,7 @@ import Button from 'primevue/button';
 import SoldClothesModal from "@/users/components/sold-clothes-modal.vue";
 import PendingClothesModal from "@/users/components/pending-clothes-modal.vue";
 import EditClotheModal from "@/users/components/edit-clothe-modal.vue";
+import SellClotheModal from "@/users/components/sell-clothe-modal.vue";
 
 export default {
   name: "ProfileView",
@@ -145,13 +200,48 @@ export default {
       showPendingModal: false,
       editModalVisible: false,
       clotheToEdit: null,
+      sellModalVisible: false,
+      clotheToSell: null,
       clothes: [],
     };
   },
-  components: {SoldClothesModal, Dialog, Button, PendingClothesModal, EditClotheModal },
+  components: {SoldClothesModal, Dialog, Button, PendingClothesModal, EditClotheModal, SellClotheModal },
   computed: {
     profile() {
       return this.profileStore.profile;
+    },
+    estadisticasVentas() {
+      if (!this.vendidas.length) return {
+        total: 0,
+        ingresos: 0,
+        topCategoria: null,
+        porCategoria: {},
+      };
+
+      const porCategoria = {};
+      let ingresos = 0;
+
+      this.vendidas.forEach(item => {
+        const cat = item.tipo || 'Sin categoría';
+        porCategoria[cat] = (porCategoria[cat] || 0) + 1;
+        ingresos += Number(item.precio) || 0;
+      });
+
+      let topCategoria = null;
+      let max = 0;
+      for (const [cat, count] of Object.entries(porCategoria)) {
+        if (count > max) {
+          max = count;
+          topCategoria = cat;
+        }
+      }
+
+      return {
+        total: this.vendidas.length,
+        ingresos,
+        topCategoria,
+        porCategoria,
+      };
     }
   },
   setup() {
@@ -173,6 +263,7 @@ export default {
         const fullProfile = await this.profileService.getById(userId);
         const favoritosIds = fullProfile.favoritos || [];
         const publicadosIds = fullProfile.publicados || [];
+        const vendidosIds = fullProfile.vendidos || [];
 
         const favoritosPromises = favoritosIds.map(id => this.clotheService.getById(id));
         this.favoritos = (await Promise.all(favoritosPromises)).filter(p => p);
@@ -180,8 +271,9 @@ export default {
         const publicadosPromises = publicadosIds.map(id => this.clotheService.getById(id));
         this.pendientes = (await Promise.all(publicadosPromises)).filter(p => p);
 
-        // Aún no manejas vendidas, puedes dejarla vacía por ahora
-        this.vendidas = [];
+        const vendidosPromises = vendidosIds.map(id => this.clotheService.getById(id));
+        this.vendidas = (await Promise.all(vendidosPromises)).filter(p => p);
+
 
         this.clothes = await this.clotheService.getAll();
 
@@ -230,21 +322,30 @@ export default {
     },
     async onRemoveClothe(editedClothe) {
       try {
-        await this.clotheService.delete(editedClothe.id);
-        this.clothes = await this.clotheService.getAll();
+        const userId = this.profileStore.profile?.id;
+        if (!userId) return;
+        const fullProfile = await this.profileService.getById(userId);
+
+        fullProfile.publicados = (fullProfile.publicados || []).filter(id => id !== editedClothe.id);
+        if (!fullProfile.armario.includes(editedClothe.id)) {
+          fullProfile.armario.push(editedClothe.id);
+        }
+
+        await this.profileService.update(userId, fullProfile);
+        await this.loadProfileData();
         this.closeEditClotheModal();
         this.$toast.add({
           severity: 'success',
           summary: 'Éxito',
-          detail: 'Prenda eliminada correctamente',
+          detail: 'Prenda movida al armario',
           life: 3000
         });
       } catch (error) {
-        console.error('Error al eliminar la prenda:', error);
+        console.error('Error al mover la prenda al armario:', error);
         this.$toast.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'No se pudo eliminar la prenda',
+          detail: 'No se pudo mover la prenda al armario',
           life: 3000
         });
       }
@@ -253,6 +354,47 @@ export default {
       this.clotheToEdit = { ...item };
       this.editModalVisible = true;
       this.showPendingModal = true;
+    },
+    openSellClotheModal(clothe) {
+      this.clotheToSell = { ...clothe };
+      this.sellModalVisible = true;
+    },
+    closeSellClotheModal() {
+      this.sellModalVisible = false;
+      this.clotheToSell = null;
+    },
+    async onConfirmSell({ comprador, clothe }) {
+      try {
+        const vendedorId = this.profileStore.profile?.id;
+        const vendedorProfile = await this.profileService.getById(vendedorId);
+        vendedorProfile.publicados = (vendedorProfile.publicados || []).filter(id => id !== clothe.id);
+        if (!vendedorProfile.vendidos.includes(clothe.id)) {
+          vendedorProfile.vendidos.push(clothe.id);
+        }
+        await this.profileService.update(vendedorId, vendedorProfile);
+
+        if (!comprador.armario.includes(clothe.id)) {
+          comprador.armario.push(clothe.id);
+          await this.profileService.update(comprador.id, comprador);
+        }
+
+        await this.loadProfileData();
+        this.closeSellClotheModal();
+        this.closeEditClotheModal();
+        this.$toast.add({
+          severity: 'success',
+          summary: 'Éxito',
+          detail: 'Venta realizada correctamente',
+          life: 3000
+        });
+      } catch (error) {
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo realizar la venta',
+          life: 3000
+        });
+      }
     }
   }
 };
@@ -474,7 +616,6 @@ export default {
   color: white;
 }
 
-
 .vendida-item img {
   width: 80px;
   border-radius: 15px;
@@ -482,11 +623,21 @@ export default {
 }
 
 .label-lista {
-  color: #b46e7e;
+  display: block;
+  text-align: center;
+  font-size: 1.15rem;
+  color: #d1718f;
   font-weight: 600;
-  margin-top: 5px;
-  font-size: 0.9rem;
+  margin: 18px 0 10px 0;
+  text-decoration: none !important;
+  cursor: pointer;
 }
+
+.label-lista:hover {
+  color: #e4738f;
+  text-decoration: none;
+}
+
 .vendidas-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -494,16 +645,32 @@ export default {
   margin-bottom: 10px;
 }
 
-.vendida-card {
-  background: #ffd2dd;
+.vendida-card,
+.pendiente-card {
+  background: #f5b9cb !important;
   border-radius: 15px;
-  padding: 18px 10px 10px 10px;
-  text-align: center;
-  color: #7a3030;
-  font-weight: 600;
+  padding: 10px;
+  text-align: left;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 8px;
+}
+
+.vendida-card div,
+.pendiente-card div {
+  background: #fff;
+  color: #000000 !important;
+  border-radius: 15px;
+  padding: 4px 12px;
+  margin-bottom: 4px;
+  font-weight: 600;
+  font-size: 1rem;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+  box-shadow: 0 1px 4px rgba(180,110,126,0.07);
 }
 
 .pendientes-grid {
@@ -511,18 +678,6 @@ export default {
   grid-template-columns: repeat(3, 1fr);
   gap: 15px;
   margin-bottom: 10px;
-}
-
-.pendiente-card {
-  background: #ffd2dd;
-  border-radius: 15px;
-  padding: 18px 10px 10px 10px;
-  text-align: center;
-  color: #7a3030;
-  font-weight: 600;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .pendientes-list li {
@@ -541,5 +696,119 @@ export default {
   cursor: pointer;
   color: #b46e7e;
   font-weight: 700;
+  transition: background 0.2s, color 0.2s;
 }
+
+.editar-btn:hover {
+  background: #e4738f;
+  color: #fff;
+}
+
+.estadisticas-section {
+  margin: 20px 0 0 0;
+  padding: 0 0 18px 0;
+  color: #7a3030;
+  border-radius: 0;
+  box-shadow: none;
+  background: none;
+}
+
+.estadisticas-cards {
+  display: flex;
+  gap: 22px;
+  margin-bottom: 10px;
+}
+
+.estadistica-card {
+  background: rgba(255,221,228,0.7);
+  border-radius: 18px;
+  padding: 18px 24px 12px 24px;
+  min-width: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(180,110,126,0.07);
+  transition: transform 0.15s;
+}
+
+.estadistica-card:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 4px 16px rgba(180,110,126,0.13);
+}
+
+.icono-card {
+  font-size: 2.1rem;
+  margin-bottom: 6px;
+}
+
+.dato-card {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #e4738f;
+  margin-bottom: 2px;
+}
+
+.label-card {
+  font-size: 0.95rem;
+  color: #7a3030;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.estadisticas-categorias {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label-categorias {
+  font-weight: 700;
+  color: #b46e7e;
+  margin-bottom: 4px;
+}
+
+.categorias-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.badge-categoria {
+  background: #ffd2dd;
+  color: #b46e7e;
+  border-radius: 12px;
+  padding: 5px 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(180,110,126,0.07);
+}
+
+.estadisticas-empty {
+  color: #b46e7e;
+  font-weight: 600;
+  padding: 12px 0 0 0;
+  font-size: 1.1rem;
+}
+
+.section-title-custom h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+  color: #000000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vendida-card img,
+.pendiente-card img {
+  height: 110px;
+  object-fit: cover;
+  border-radius: 15px;
+  background: #fff;
+  display: block;
+  margin-bottom: 5px;
+}
+
 </style>

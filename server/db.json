@@ -20,6 +20,10 @@
         "P001",
         "P002",
         "P013"
+      ],
+      "vendidos": [
+        "P005",
+        "P006"
       ]
     },
     {
@@ -41,7 +45,8 @@
       "publicados": [
         "P014",
         "P008"
-      ]
+      ],
+        "vendidos": []
     },
     {
       "id": 3,
@@ -62,7 +67,8 @@
         "P003",
         "P004",
         "P015"
-      ]
+      ],
+      "vendidos": []
     },
     {
       "id": 4,
@@ -74,6 +80,7 @@
       "armario": [],
       "favoritos": [],
       "publicados": [],
+      "vendidos": [],
       "apiId": "v1"
     },
     {
@@ -89,6 +96,7 @@
         "P011",
         "P012"
       ],
+      "vendidos": [],
       "imageprofile": "https://media.istockphoto.com/id/1389348844/es/foto/foto-de-estudio-de-una-hermosa-joven-sonriendo-mientras-est%C3%A1-de-pie-sobre-un-fondo-gris.jpg?s=612x612&w=0&k=20&c=kUufmNoTnDcRbyeHhU1wRiip-fNjTWP9owjHf75frFQ=",
       "apiId": "v1"
     },

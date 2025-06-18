@@ -67,6 +67,9 @@ export default {
           </div>
         </div>
         <div class="modal-actions">
+          <button class="icon-btn sell" @click="$emit('sell', edited)" title="Vender">
+            💸
+          </button>
           <button class="icon-btn delete" @click="remove" title="Eliminar">
             🗑️
           </button>
@@ -99,6 +102,7 @@ export default {
   justify-content: center;
   z-index: 2000;
 }
+
 .modal-rosa {
   background: #ffffff;
   border-radius: 20px;
@@ -111,6 +115,7 @@ export default {
   flex-direction: column;
   align-items: stretch;
 }
+
 .modal-header {
   display: flex;
   justify-content: center;
@@ -123,11 +128,13 @@ export default {
   color: #7a3030;
   position: relative;
 }
+
 .clothe-name {
   flex: 1;
   text-align: center;
   color: #7a3030;
 }
+
 .close-btn {
   position: absolute;
   right: 30px;
@@ -138,6 +145,7 @@ export default {
   color: #b46e7e;
   cursor: pointer;
 }
+
 .modal-img-box {
   background: #e4738f;
   border-radius: 15px;
@@ -147,6 +155,7 @@ export default {
   justify-content: center;
   align-items: center;
 }
+
 .modal-img-box img {
   width: 120px;
   height: 120px;
@@ -154,33 +163,39 @@ export default {
   object-fit: cover;
   background: #fff;
 }
+
 .modal-data-box {
   background: #e4738f;
   border-radius: 15px;
   margin: 18px 30px 0 30px;
   padding: 24px 24px;
 }
+
 .data-columns {
   display: flex;
   gap: 30px;
 }
+
 .left-col, .right-col {
   display: flex;
   flex-direction: column;
   gap: 18px;
   flex: 1;
 }
+
 .inline-field {
   display: flex;
   align-items: center;
   gap: 12px;
 }
+
 .left-col label, .right-col label {
   font-weight: 600;
   color: #7a3030;
   margin-bottom: 2px;
   min-width: 80px;
 }
+
 .left-col input {
   border: 1px solid #ffd2dd;
   border-radius: 8px;
@@ -191,6 +206,7 @@ export default {
   margin-bottom: 0;
   flex: 1;
 }
+
 .right-col textarea {
   border: 1px solid #ffd2dd;
   border-radius: 8px;
@@ -201,6 +217,7 @@ export default {
   resize: vertical;
   min-height: 60px;
 }
+
 .modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -208,6 +225,7 @@ export default {
   gap: 10px;
   margin: 28px 40px 0 40px;
 }
+
 .icon-btn {
   background: #ffd2dd;
   border: none;
@@ -221,12 +239,20 @@ export default {
   justify-content: center;
   transition: background 0.2s;
 }
+
+.icon-btn.sell:hover {
+  background: #4caf50;
+  color: #fff;
+}
+
 .icon-btn.delete:hover {
   background: #f44336;
   color: #fff;
 }
+
 .icon-btn.save:hover {
   background: #4caf50;
   color: #fff;
 }
+
 </style>

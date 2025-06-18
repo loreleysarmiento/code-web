@@ -39,19 +39,22 @@ export default {
   <div class="modal-backdrop" @click.self="close">
     <div class="modal-content">
       <button class="close-btn" @click="close">×</button>
-      <div class="modal-title">Vendidas</div>
+      <div class="modal-title">Vendidos</div>
       <div class="gallery">
-        <button class="arrow left" @click="prevPage" :disabled="page === 0">‹</button>
+        <button class="arrow left" @click="prevPage" :disabled="page === 0">
+          <img src="/public/FLECHAIZQUIERDA.png" />
+        </button>
         <div class="cards">
           <div class="card" v-for="item in pagedItems" :key="item.id">
-            <img :src="item.imagen" alt="Prenda vendida" />
-            <div>Nombre: {{ item.nombre }}</div>
-            <div>Tipo: {{ item.tipo }}</div>
-            <div>Estado: Vendida</div>
-            <div>Precio: S/. {{ item.precio }}</div>
+            <img :src="item.imagen" alt="Prenda" />
+            <div class="dato-card">Tipo: {{ item.tipo }}</div>
+            <div class="dato-card">Estado: Vendido</div>
+            <div class="dato-card">Precio: S/. {{ item.precio }}</div>
           </div>
         </div>
-        <button class="arrow right" @click="nextPage" :disabled="endIndex >= items.length">›</button>
+        <button class="arrow right" @click="nextPage" :disabled="endIndex >= items.length">
+          <img src="/public/FlechaContinuar.png" />
+        </button>
       </div>
     </div>
   </div>
@@ -67,76 +70,140 @@ export default {
   justify-content: center;
   z-index: 1000;
 }
+
 .modal-content {
   background: #fff;
-  border-radius: 20px;
-  padding: 30px 20px;
-  min-width: 700px;
-  min-height: 400px;
+  border-radius: 150px;
+  padding: 50px 40px;
+  min-width: 1300px;
+  min-height: 800px;
   position: relative;
   box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-}
-.close-btn {
-  position: absolute;
-  top: 10px; right: 20px;
-  background: none;
-  border: none;
-  font-size: 2rem;
-  cursor: pointer;
-}
-.modal-title {
-  text-align: center;
-  font-size: 2rem;
-  font-weight: bold;
-  color: #b46e7e;
-  margin-bottom: 20px;
-  letter-spacing: 1px;
-}
-.gallery {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.cards {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  gap: 15px;
-  margin: 0 20px;
-}
-.card {
-  background: #ffdde4;
-  border-radius: 15px;
-  padding: 10px;
-  text-align: center;
-  font-size: 0.9rem;
-  color: #7a3030;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+
+.close-btn {
+  position: absolute;
+  top: 30px;
+  right: 60px;
+  background: none;
+  border: none;
+  font-size: 3rem;
+  cursor: pointer;
+  color: #000000;
+  z-index: 2;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #e4738f;
+}
+
+.modal-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+}
+
+.gallery {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 600px; /* Centra verticalmente las flechas respecto a las cards */
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 40px;
+  margin: 0 40px;
+}
+
+.card {
+  padding: 30px 20px;
+  text-align: center;
+  font-size: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  min-width: 180px;
+  min-height: 260px;
+  box-shadow: 0 2px 8px rgba(180,110,126,0.07);
+}
+
 .card img {
-  width: 60px;
-  height: 60px;
+  width: 130px;
+  height: 130px;
   border-radius: 10px;
   object-fit: cover;
-  margin-bottom: 8px;
+  margin-bottom: 15px;
+  background: #fff;
 }
+
+.card div {
+  font-size: 0.8rem;
+  color: #000000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 5px;
+  padding-bottom: 5px;
+  padding-top: 5px;
+}
+
+.dato-card {
+  background: #f5b9cb;
+  border-radius: 15px;
+  padding: 4px 12px;
+  margin-bottom: 4px;
+  font-weight: 600;
+  font-size: 1rem;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .arrow {
-  background: #e4738f;
-  color: #fff;
+  background: none;
   border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  font-size: 1.5rem;
+  border-radius: 0;
+  width: 70px;
+  height: 70px;
+  padding: 0;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 .arrow:disabled {
-  background: #ccc;
   cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.arrow img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: filter 0.2s, transform 0.2s;
+}
+
+.arrow:hover img:not(:disabled) {
+  filter: brightness(1.2) drop-shadow(0 0 6px #e4738f);
+  transform: scale(1.08);
 }
 </style>
